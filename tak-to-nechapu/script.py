@@ -1,27 +1,23 @@
+import urllib2
+import urllib
 import json
-from urllib.request import urlopen
-import xmltodict
+import os
+from flask import render_template, Flask,jsonify,make_response, Response
+os.environ['no_proxy']='*'
 
-r = urlopen('https://blog.iservery.com/wp-json/wp/v2/posts')
-data = json.load(r)
-pole=[]
-for radek in data:
-  inradek=dict(nadpis=radek['title']['rendered'],xxx=radek['content']['rendered'])
-  pole.append(inradek)
-#print(pole['0'])
-print(inradek)
+app = Flask(__name__)
 
 
-with open('idk.json', 'r') as f:
-    jsonString = f.read()
+def wpjson():
+    r = urllib2.urlopen('http://192.168.10.1/test.json')
+    data=json.load(r)
+    return data
 
-print('JSON input (sample.json):')
-print(jsonString)
+@app.route('/')
+def index():
+    data = wpjson()
+    return render_template('index.html',data=data)
 
-xmlString = xmltodict.unparse(json.loads(jsonString), pretty=True)
-
-print('\nXML output(output.xml):')
-print(xmlString)
-
-with open('output.xml', 'w') as f:
-    f.write(xmlString)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT',5000))
+app.run(host='0.0.0.0',port = port)
